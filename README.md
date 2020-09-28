@@ -8,4 +8,37 @@ GRPC resolver for Kubernetes service endpoints
 Based off the DNS resolver, rather than making DNS queries, the k8s resolver queries the Kubernetes API for service endpoints matching the service name.
 
 ## Example
-`TODO`
+```go
+package main
+
+import (
+	"log"
+	pb "github.com/your-username/your-project/protos"
+	_ "github.com/tcfw/go-grpc-k8s-resolver"
+)
+
+func main() {
+	resolver := "dns"
+
+	if os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
+		resolver = "k8s"
+	}
+
+	resolver.SetDefaultScheme(resolver)
+
+	conn, err := grpc.Dial("my-service-name")
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	client := pb.NewRouteGuideClient(conn)
+
+	feature, err := client.GetFeature(context.Background(), &pb.Point{409146138, -746188906})
+	if err != nil {
+		panic(err)
+	}
+
+	log.Println(feature)
+}
+```
