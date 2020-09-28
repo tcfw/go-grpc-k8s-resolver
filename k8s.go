@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-type k8sServiceEndpointResolver interface {
+type serviceEndpointResolver interface {
 	Resolve(ctx context.Context, host string, port string) ([]string, error)
 	Watch(ctx context.Context, host string) (<-chan watch.Event, error)
 }

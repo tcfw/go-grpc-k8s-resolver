@@ -9,7 +9,7 @@ import (
 )
 
 type k8sResolver struct {
-	k8sC   k8sServiceEndpointResolver
+	k8sC   serviceEndpointResolver
 	host   string
 	port   string
 	ctx    context.Context
