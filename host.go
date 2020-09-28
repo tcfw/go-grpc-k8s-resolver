@@ -7,13 +7,13 @@ import (
 )
 
 var (
-	errMissingAddr = errors.New("dns resolver: missing address")
+	errMissingAddr = errors.New("k8s resolver: missing address")
 
 	// Addresses ending with a colon that is supposed to be the separator
 	// between host and port is not allowed.  E.g. "::" is a valid address as
 	// it is an IPv6 address (host only) and "[::]:" is invalid as it ends with
 	// a colon as the host and port separator
-	errEndsWithColon = errors.New("dns resolver: missing port after port-separator colon")
+	errEndsWithColon = errors.New("k8s resolver: missing port after port-separator colon")
 )
 
 // parseTarget takes the user input target string and default port, returns formatted host and port info.

@@ -18,8 +18,7 @@ type k8sResolver struct {
 	// rn channel is used by ResolveNow() to force an immediate resolution of the target.
 	rn chan struct{}
 	// wg is used to enforce Close() to return after the watcher() goroutine has finished.
-	// Otherwise, data race will be possible. [Race Example] in dns_resolver_test we
-	// replace the real lookup functions with mocked ones to facilitate testing.
+	// Otherwise, data race will be possible.
 	// If Close() doesn't wait for watcher() goroutine finishes, race detector sometimes
 	// will warns lookup (READ the lookup function pointers) inside watcher() goroutine
 	// has data race with replaceNetFunc (WRITE the lookup function pointers).

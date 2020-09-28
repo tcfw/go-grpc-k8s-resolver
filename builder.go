@@ -19,7 +19,7 @@ func init() {
 	resolver.Register(NewBuilder())
 }
 
-// NewBuilder creates a dnsBuilder which is used to factory DNS resolvers.
+// NewBuilder creates a k8sBuilder which is used to factory K8S service resolvers.
 func NewBuilder() resolver.Builder {
 	return &k8sBuilder{}
 }
@@ -54,7 +54,7 @@ func (b *k8sBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts 
 	return k, nil
 }
 
-// Scheme returns the naming scheme of this resolver builder, which is "dns".
+// Scheme returns the naming scheme of this resolver builder, which is "k8s".
 func (b *k8sBuilder) Scheme() string {
 	return "k8s"
 }
