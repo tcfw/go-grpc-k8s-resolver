@@ -6,6 +6,11 @@ import (
 	"time"
 
 	"google.golang.org/grpc/resolver"
+	"k8s.io/apimachinery/pkg/watch"
+)
+
+const (
+	watcherRetryDuration = 10 * time.Second
 )
 
 type k8sResolver struct {
@@ -42,10 +47,17 @@ func (k *k8sResolver) Close() {
 func (k *k8sResolver) watcher() {
 	defer k.wg.Done()
 
-	we, err := k.k8sC.Watch(k.ctx, k.host)
-	if err != nil {
-		logger.Errorf("Unable to watch service endpoints: %s", err)
-		return
+	var we <-chan watch.Event
+	var err error
+
+	for {
+		we, err = k.k8sC.Watch(k.ctx, k.host)
+		if err != nil {
+			logger.Errorf("Unable to watch service endpoints: %s - retry in %s", err, watcherRetryDuration)
+			time.Sleep(watcherRetryDuration)
+			continue
+		}
+		break
 	}
 
 	for {
