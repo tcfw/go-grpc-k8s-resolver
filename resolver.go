@@ -44,7 +44,8 @@ func (k *k8sResolver) watcher() {
 
 	we, err := k.k8sC.Watch(k.ctx, k.host)
 	if err != nil {
-		panic(err)
+		logger.Errorf("Unable to watch service endpoints: %s", err)
+		return
 	}
 
 	for {
