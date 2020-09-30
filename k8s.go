@@ -2,6 +2,7 @@ package k8sresolver
 
 import (
 	"context"
+	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -50,7 +51,7 @@ func (s *serviceClient) Resolve(ctx context.Context, host string, port string) (
 }
 
 func (s *serviceClient) Watch(ctx context.Context, host string) (<-chan watch.Event, error) {
-	watcher, err := s.k8s.CoreV1().Endpoints("").Watch(ctx, metav1.ListOptions{Watch: true, LabelSelector: host})
+	watcher, err := s.k8s.CoreV1().Endpoints("").Watch(ctx, metav1.ListOptions{Watch: true, FieldSelector: fmt.Sprintf("%s=%s", "metadata.name", host)})
 	if err != nil {
 		return nil, err
 	}
