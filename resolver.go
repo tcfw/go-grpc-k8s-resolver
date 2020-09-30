@@ -53,7 +53,7 @@ func (k *k8sResolver) watcher() {
 	for {
 		we, err = k.k8sC.Watch(k.ctx, k.host)
 		if err != nil {
-			logger.Errorf("Unable to watch service endpoints: %s - retry in %s", err, watcherRetryDuration)
+			logger.Errorf("Unable to watch service endpoints (%s:%s): %s - retry in %s", k.host, k.port, err, watcherRetryDuration)
 			time.Sleep(watcherRetryDuration)
 			continue
 		}
