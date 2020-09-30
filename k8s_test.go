@@ -32,7 +32,7 @@ func TestResolve(t *testing.T) {
 
 	res, err := s.Resolve(context.Background(), "test", "0")
 	if assert.NoError(t, err) {
-		assert.Equal(t, []string{"1.1.1.1"}, res)
+		assert.Equal(t, []string{"1.1.1.1:0"}, res)
 	}
 }
 

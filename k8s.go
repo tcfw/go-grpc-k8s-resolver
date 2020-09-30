@@ -44,7 +44,7 @@ func (s *serviceClient) Resolve(ctx context.Context, host string, port string) (
 
 	for _, v := range ep.Subsets {
 		for _, addr := range v.Addresses {
-			eps = append(eps, addr.IP)
+			eps = append(eps, fmt.Sprintf("%s:%s", addr.IP, port))
 		}
 	}
 
