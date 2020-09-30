@@ -2,6 +2,7 @@ package k8sresolver
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc/grpclog"
@@ -9,8 +10,9 @@ import (
 )
 
 const (
-	defaultPort   = "443"
-	minK8SResRate = 5 * time.Second
+	defaultPort      = "443"
+	defaultNamespace = "default"
+	minK8SResRate    = 5 * time.Second
 )
 
 var logger = grpclog.Component("k8s")
@@ -32,7 +34,9 @@ func (b *k8sBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts 
 		return nil, err
 	}
 
-	k8sc, err := newInClusterClient()
+	namespace := getNamespaceFromHost(host)
+
+	k8sc, err := newInClusterClient(namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -57,4 +61,14 @@ func (b *k8sBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts 
 // Scheme returns the naming scheme of this resolver builder, which is "k8s".
 func (b *k8sBuilder) Scheme() string {
 	return "k8s"
+}
+
+func getNamespaceFromHost(host string) string {
+	namespace := defaultNamespace
+
+	hostParts := strings.Split(host, ".")
+	if len(hostParts) >= 2 {
+		namespace = hostParts[1]
+	}
+	return namespace
 }

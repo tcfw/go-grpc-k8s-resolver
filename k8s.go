@@ -16,10 +16,11 @@ type serviceEndpointResolver interface {
 }
 
 type serviceClient struct {
-	k8s *kubernetes.Clientset
+	k8s       kubernetes.Interface
+	namespace string
 }
 
-func newInClusterClient() (*serviceClient, error) {
+func newInClusterClient(namespace string) (*serviceClient, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -30,20 +31,20 @@ func newInClusterClient() (*serviceClient, error) {
 		return nil, err
 	}
 
-	return &serviceClient{k8s: clientset}, nil
+	return &serviceClient{k8s: clientset, namespace: namespace}, nil
 }
 
 func (s *serviceClient) Resolve(ctx context.Context, host string, port string) ([]string, error) {
 	eps := []string{}
 
-	ep, err := s.k8s.CoreV1().Endpoints("").Get(ctx, host, metav1.GetOptions{})
+	ep, err := s.k8s.CoreV1().Endpoints(s.namespace).Get(ctx, host, metav1.GetOptions{})
 	if err != nil {
 		return eps, err
 	}
 
 	for _, v := range ep.Subsets {
 		for _, addr := range v.Addresses {
-			eps = append(eps, addr.Hostname)
+			eps = append(eps, addr.IP)
 		}
 	}
 
@@ -51,7 +52,7 @@ func (s *serviceClient) Resolve(ctx context.Context, host string, port string) (
 }
 
 func (s *serviceClient) Watch(ctx context.Context, host string) (<-chan watch.Event, error) {
-	watcher, err := s.k8s.CoreV1().Endpoints("").Watch(ctx, metav1.ListOptions{Watch: true, FieldSelector: fmt.Sprintf("%s=%s", "metadata.name", host)})
+	watcher, err := s.k8s.CoreV1().Endpoints(s.namespace).Watch(ctx, metav1.ListOptions{FieldSelector: fmt.Sprintf("%s=%s", "metadata.name", host)})
 	if err != nil {
 		return nil, err
 	}
