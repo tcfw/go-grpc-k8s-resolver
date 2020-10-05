@@ -7,6 +7,10 @@ GRPC resolver for Kubernetes service endpoints
 ## Overview
 Based off the DNS resolver, rather than making DNS queries, the k8s resolver queries the Kubernetes API for service endpoints matching the service name.
 
+Using a headless service can be slow to update and the reverse proxies in service meshes may increase latency. By using the endpoints Kubernetes, updating the client with new or removing old server endpoints can be much faster.
+
+![overview](./overview.png)
+
 ## Example
 ```go
 package main
