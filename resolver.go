@@ -2,6 +2,7 @@ package k8sresolver
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -11,6 +12,10 @@ import (
 
 const (
 	watcherRetryDuration = 10 * time.Second
+)
+
+var (
+	errNoEndpoints = errors.New("no endpoints available")
 )
 
 type k8sResolver struct {
@@ -53,7 +58,7 @@ func (k *k8sResolver) watcher() {
 	for {
 		we, err = k.k8sC.Watch(k.ctx, k.host)
 		if err != nil {
-			logger.Errorf("Unable to watch service endpoints (%s:%s): %s - retry in %s", k.host, k.port, err, watcherRetryDuration)
+			logger.Errorf("unable to watch service endpoints (%s:%s): %s - retry in %s", k.host, k.port, err, watcherRetryDuration)
 			time.Sleep(watcherRetryDuration)
 			continue
 		}
@@ -91,6 +96,10 @@ func (k *k8sResolver) lookup() (*resolver.State, error) {
 	endpoints, err := k.k8sC.Resolve(k.ctx, k.host, k.port)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(endpoints) == 0 {
+		return nil, errNoEndpoints
 	}
 
 	state := &resolver.State{Addresses: []resolver.Address{}}

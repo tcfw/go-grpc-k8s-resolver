@@ -23,12 +23,12 @@ type serviceClient struct {
 func newInClusterClient(namespace string) (*serviceClient, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("k8s resolver: failed to build in-cluster kuberenets config: %s", err)
 	}
 	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("k8s resolver: failed to provisiong Kubernetes client set: %s", err)
 	}
 
 	return &serviceClient{k8s: clientset, namespace: namespace}, nil
@@ -39,7 +39,7 @@ func (s *serviceClient) Resolve(ctx context.Context, host string, port string) (
 
 	ep, err := s.k8s.CoreV1().Endpoints(s.namespace).Get(ctx, host, metav1.GetOptions{})
 	if err != nil {
-		return eps, err
+		return eps, fmt.Errorf("k8s resolver: failed to fetch service endpoint: %s", err)
 	}
 
 	for _, v := range ep.Subsets {
@@ -54,7 +54,7 @@ func (s *serviceClient) Resolve(ctx context.Context, host string, port string) (
 func (s *serviceClient) Watch(ctx context.Context, host string) (<-chan watch.Event, error) {
 	watcher, err := s.k8s.CoreV1().Endpoints(s.namespace).Watch(ctx, metav1.ListOptions{FieldSelector: fmt.Sprintf("%s=%s", "metadata.name", host)})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("k8s resolver: failed to start watching endpoints: %s", err)
 	}
 
 	return watcher.ResultChan(), nil
