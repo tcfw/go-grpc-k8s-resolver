@@ -98,10 +98,6 @@ func (k *k8sResolver) lookup() (*resolver.State, error) {
 		return nil, err
 	}
 
-	if len(endpoints) == 0 {
-		return nil, errNoEndpoints
-	}
-
 	state := &resolver.State{Addresses: []resolver.Address{}}
 
 	for _, ep := range endpoints {
