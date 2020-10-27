@@ -53,10 +53,11 @@ func (k *k8sResolver) watcher() {
 	defer k.wg.Done()
 
 	var we <-chan watch.Event
+	var stop chan struct{}
 	var err error
 
 	for {
-		we, err = k.k8sC.Watch(k.ctx, k.host)
+		we, stop, err = k.k8sC.Watch(k.ctx, k.host)
 		if err != nil {
 			logger.Errorf("unable to watch service endpoints (%s:%s): %s - retry in %s", k.host, k.port, err, watcherRetryDuration)
 			time.Sleep(watcherRetryDuration)
@@ -68,6 +69,7 @@ func (k *k8sResolver) watcher() {
 	for {
 		select {
 		case <-k.ctx.Done():
+			close(stop)
 			return
 		case <-k.rn:
 		case <-we:
@@ -87,6 +89,7 @@ func (k *k8sResolver) watcher() {
 		case <-t.C:
 		case <-k.ctx.Done():
 			t.Stop()
+			close(stop)
 			return
 		}
 	}

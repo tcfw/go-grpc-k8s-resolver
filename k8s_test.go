@@ -56,8 +56,6 @@ func TestWatch(t *testing.T) {
 		),
 	}
 
-	_, err := s.Watch(context.Background(), "test")
-	if assert.NoError(t, err) {
-
-	}
+	_, _, err := s.Watch(context.Background(), "test")
+	assert.NoError(t, err)
 }
