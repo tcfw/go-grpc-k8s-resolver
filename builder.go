@@ -34,7 +34,7 @@ func (b *k8sBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts 
 		return nil, err
 	}
 
-	namespace := getNamespaceFromHost(host)
+	namespace, host := getNamespaceFromHost(host)
 
 	k8sc, err := newInClusterClient(namespace)
 	if err != nil {
@@ -63,12 +63,13 @@ func (b *k8sBuilder) Scheme() string {
 	return "k8s"
 }
 
-func getNamespaceFromHost(host string) string {
+func getNamespaceFromHost(host string) (string, string) {
 	namespace := defaultNamespace
 
 	hostParts := strings.Split(host, ".")
 	if len(hostParts) >= 2 {
 		namespace = hostParts[1]
+		host = hostParts[0]
 	}
-	return namespace
+	return namespace, host
 }
