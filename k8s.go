@@ -60,7 +60,7 @@ func (s *serviceClient) Watch(ctx context.Context, host string) (<-chan watch.Ev
 	ev := make(chan watch.Event)
 
 	watchList := cache.NewListWatchFromClient(s.k8s.CoreV1().RESTClient(), "endpoints", s.namespace, fields.OneTermEqualSelector("metadata.name", host))
-	_, controller := cache.NewInformer(watchList, &v1.EndpointsList{}, time.Second*5, cache.ResourceEventHandlerFuncs{
+	_, controller := cache.NewInformer(watchList, &v1.Endpoints{}, time.Second*5, cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			ev <- watch.Event{Type: watch.Added, Object: obj.(runtime.Object)}
 		},
